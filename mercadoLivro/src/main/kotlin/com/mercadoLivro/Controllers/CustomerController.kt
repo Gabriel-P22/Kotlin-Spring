@@ -1,5 +1,6 @@
 package com.mercadoLivro.Controllers
 
+import com.mercadoLivro.Controllers.Extensions.toCustomerModel
 import com.mercadoLivro.Controllers.Request.PostCustomerRequest
 import com.mercadoLivro.Controllers.Request.PutCustomerRequest
 import com.mercadoLivro.Model.CustomerModel
@@ -21,13 +22,13 @@ class CustomerController(
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    fun createCusomer(@RequestBody customer: PostCustomerRequest) {
-        return customerService.createCusomer(customer)
+    fun createCustomer(@RequestBody customer: PostCustomerRequest) {
+        return customerService.createCustomer(customer.toCustomerModel())
     }
 
     @GetMapping("/{id}")
     fun getUserById(@PathVariable id: String): CustomerModel {
-        return getUserById(id)
+        return customerService.getUserById(id)
     }
 
     @PutMapping("/{id}")
@@ -36,7 +37,7 @@ class CustomerController(
         @PathVariable id: String,
         @RequestBody customer: PutCustomerRequest
     ) {
-        return customerService.updateUserById(id, customer)
+        return customerService.updateUserById(id, customer.toCustomerModel(id))
     }
 
     @DeleteMapping("/{id}")
