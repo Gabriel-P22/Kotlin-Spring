@@ -37,7 +37,7 @@ class CustomerController(
         @PathVariable id: Int,
         @RequestBody customer: PutCustomerRequest
     ) {
-        return customerService.updateUserById(id, customer.toCustomerModel(id))
+        return customerService.updateUserById(customer.toCustomerModel(id))
     }
 
     @DeleteMapping("/{id}")
