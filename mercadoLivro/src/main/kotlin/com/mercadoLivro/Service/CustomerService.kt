@@ -1,5 +1,6 @@
 package com.mercadoLivro.Service
 
+import com.mercadoLivro.Enums.CustomerStatus
 import com.mercadoLivro.Model.CustomerModel
 import com.mercadoLivro.Repository.CustomerRepository
 import org.springframework.data.repository.findByIdOrNull
@@ -7,7 +8,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class CustomerService(
-    val customerRepository: CustomerRepository
+    val customerRepository: CustomerRepository,
+    val bookService: BookService
 ) {
 
     fun getAllCustomers(name: String?): List<CustomerModel> {
@@ -37,6 +39,9 @@ class CustomerService(
     fun deleteUserById(
         id: Int
     ) {
-        customerRepository.deleteById(id)
+       val customer = getCustomerById(id)
+        bookService.deleteByCustomer(customer)
+        customer.status = CustomerStatus.DISABLED
+        customerRepository.save(customer)
     }
 }

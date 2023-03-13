@@ -2,13 +2,17 @@ package com.mercadoLivro.Controllers
 
 import com.mercadoLivro.Controllers.Request.PutBookRequest
 import com.mercadoLivro.Controllers.Extensions.toBookModel
+import com.mercadoLivro.Controllers.Extensions.toBookResponse
 import com.mercadoLivro.Service.BookService
 import com.mercadoLivro.Controllers.Request.PostBookRequest
+import com.mercadoLivro.Controllers.Response.BookResponse
 import com.mercadoLivro.Enums.BookStatus
-import com.mercadoLivro.Model.BookModel
 import com.mercadoLivro.Service.CustomerService
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Page
 
 @RestController
 @RequestMapping("book")
@@ -17,7 +21,6 @@ class BookController(
     val customerService: CustomerService
 ) {
 
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@RequestBody request: PostBookRequest) {
@@ -25,24 +28,30 @@ class BookController(
         return bookService.create(request.toBookModel(customer))
     }
 
-
-    fun getAll(): List<BookModel> {
-        return bookService.getAll()
+    @GetMapping
+    fun getAll(@PageableDefault(page = 0, size = 10) pageable: Pageable): Page<BookResponse> {
+        return bookService.getAll(pageable).map {
+            it.toBookResponse()
+        }
     }
 
     @GetMapping("/actives")
-    fun findActives(): List<BookModel> {
-        return bookService.getBookForStatus(BookStatus.Active)
+    fun findActives(@PageableDefault(page = 0, size = 10) pageable: Pageable): Page<BookResponse> {
+        return bookService.getBookForStatus(BookStatus.ACTIVE, pageable).map {
+            it.toBookResponse()
+        }
     }
 
     @GetMapping("/deleted")
-    fun findDeleted(): List<BookModel> {
-        return bookService.getBookForStatus(BookStatus.deleted)
+    fun findDeleted(@PageableDefault(page = 0, size = 10) pageable: Pageable): Page<BookResponse> {
+        return bookService.getBookForStatus(BookStatus.DELETED, pageable).map {
+            it.toBookResponse()
+        }
     }
 
     @GetMapping("/{id}")
-    fun findById(@PathVariable id: Int): BookModel {
-        return bookService.findBookById(id)
+    fun findById(@PathVariable id: Int): BookResponse {
+        return bookService.findBookById(id).toBookResponse()
     }
 
     @DeleteMapping("/{id}")

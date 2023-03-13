@@ -1,9 +1,10 @@
 package com.mercadoLivro.Controllers
 
 import com.mercadoLivro.Controllers.Extensions.toCustomerModel
+import com.mercadoLivro.Controllers.Extensions.toResponse
 import com.mercadoLivro.Controllers.Request.PostCustomerRequest
 import com.mercadoLivro.Controllers.Request.PutCustomerRequest
-import com.mercadoLivro.Model.CustomerModel
+import com.mercadoLivro.Controllers.Response.CustomerResponse
 import com.mercadoLivro.Service.CustomerService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -16,8 +17,10 @@ class CustomerController(
 ) {
 
     @GetMapping
-    fun getAllCustomers(@RequestParam name: String?): List<CustomerModel> {
-        return customerService.getAllCustomers(name)
+    fun getAllCustomers(@RequestParam name: String?): List<CustomerResponse> {
+        return customerService.getAllCustomers(name).map {
+            it.toResponse()
+        }
     }
 
     @PostMapping
@@ -27,8 +30,8 @@ class CustomerController(
     }
 
     @GetMapping("/{id}")
-    fun getUserById(@PathVariable id: Int): CustomerModel {
-        return customerService.getCustomerById(id)
+    fun getUserById(@PathVariable id: Int): CustomerResponse {
+        return customerService.getCustomerById(id).toResponse()
     }
 
     @PutMapping("/{id}")
@@ -37,7 +40,8 @@ class CustomerController(
         @PathVariable id: Int,
         @RequestBody customer: PutCustomerRequest
     ) {
-        return customerService.updateUserById(customer.toCustomerModel(id))
+        val customerSaved = customerService.getCustomerById(id)
+        return customerService.updateUserById(customer.toCustomerModel(customerSaved))
     }
 
     @DeleteMapping("/{id}")
@@ -45,6 +49,6 @@ class CustomerController(
     fun deleteUserById(
         @PathVariable id: Int
     ) {
-        return customerService.deleteUserById(id)
+        customerService.deleteUserById(id)
     }
 }
